@@ -1,0 +1,21 @@
+{
+"name": "Manzini Public Library",
+"short_name": "Library",
+"start_url": "/library_system/client/index.php",
+"display": "standalone",
+"background_color": "#1e3a8a",
+"theme_color": "#1e3a8a",
+"orientation": "portrait",
+"icons": [
+{
+"src": "assets/icons/icon-192.png",
+"sizes": "192x192",
+"type": "image/png"
+},
+{
+"src": "assets/icons/icon-512.png",
+"sizes": "512x512",
+"type": "image/png"
+}
+]
+}

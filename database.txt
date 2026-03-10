@@ -1,0 +1,124 @@
+-- DROP DATABASE IF EXISTS (fresh start)
+DROP DATABASE IF EXISTS library_system_db;
+
+-- CREATE DATABASE
+CREATE DATABASE library_system_db;
+USE library_system_db;
+
+-- USERS TABLE
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('client','admin') DEFAULT 'client',
+    profile_pic VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BOOKS TABLE
+CREATE TABLE books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    authors VARCHAR(255) NOT NULL,
+    category VARCHAR(100),
+    cover_image VARCHAR(255),
+    summary TEXT,
+    quantity INT DEFAULT 1,
+    available INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- RESERVATIONS TABLE
+CREATE TABLE reservations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    book_id INT NOT NULL,
+    status ENUM('Pending','Approved','Denied','Cancelled') DEFAULT 'Pending',
+    reserve_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expiry DATETIME,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+
+-- BORROWINGS TABLE
+CREATE TABLE borrowings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    book_id INT NOT NULL,
+    borrow_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    due_date DATE,
+    return_date DATE,
+    status ENUM('Borrowed','Returned','Overdue') DEFAULT 'Borrowed',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+
+-- FAVOURITES TABLE
+CREATE TABLE favourites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    book_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+
+-- RATINGS TABLE
+CREATE TABLE ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    book_id INT NOT NULL,
+    rating INT,
+    review TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+
+-- NOTIFICATIONS TABLE
+CREATE TABLE notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    message TEXT,
+    status ENUM('Unread','Read') DEFAULT 'Unread',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- SAMPLE USERS
+-- Passwords hashed with PHP password_hash('admin123', PASSWORD_DEFAULT) and 'client123'
+INSERT INTO users (name,email,password,role) VALUES
+('Admin User','admin@library.com','$2y$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX','admin'),
+('Tenele Sipho','sipho@gmail.com','$2y$10$YYYYYYYYYYYYYYYYYYYYYYYYYYYYYY','client');
+
+-- SAMPLE BOOKS
+INSERT INTO books (title,authors,category,cover_image,summary,quantity,available) VALUES
+('Introduction to Programming','John Smith','Programming','programming.jpg','Learn programming basics','5','5'),
+('Database Systems','Mary Johnson','Database','database.jpg','Learn SQL and database design','3','3'),
+('Web Development','David Brown','Web Dev','web.jpg','HTML, CSS, JavaScript guide','4','4'),
+('Computer Networks','Andrew Tanenbaum','Networking','network.jpg','Networking fundamentals','2','2'),
+('Operating Systems','William Stallings','Operating Systems','os.jpg','OS concepts and design','3','3');
+
+-- SAMPLE RESERVATIONS
+INSERT INTO reservations (user_id,book_id,status,expiry) VALUES
+(2,1,'Pending',DATE_ADD(NOW(),INTERVAL 2 DAY)),
+(2,3,'Approved',DATE_ADD(NOW(),INTERVAL 2 DAY));
+
+-- SAMPLE BORROWINGS
+INSERT INTO borrowings (user_id,book_id,due_date,status) VALUES
+(2,2,DATE_ADD(CURDATE(),INTERVAL 14 DAY),'Borrowed'),
+(2,4,DATE_ADD(CURDATE(),INTERVAL 14 DAY),'Borrowed');
+
+-- SAMPLE FAVOURITES
+INSERT INTO favourites (user_id,book_id) VALUES
+(2,1),(2,3);
+
+-- SAMPLE RATINGS
+INSERT INTO ratings (user_id,book_id,rating,review) VALUES
+(2,1,5,'Excellent book for beginners!'),
+(2,3,4,'Very useful for web development.');
+
+-- SAMPLE NOTIFICATIONS
+INSERT INTO notifications (user_id,message,status) VALUES
+(2,'Your reservation for "Introduction to Programming" is pending','Unread'),
+(2,'Your reservation for "Web Development" has been approved','Unread');
