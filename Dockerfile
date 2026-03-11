@@ -1,10 +1,8 @@
 
-FROM php:8.2-cli
-
-WORKDIR /app
-
-COPY . .
+FROM php:8.2-apache
 
 RUN docker-php-ext-install mysqli
 
-CMD php -S 0.0.0.0:$PORT
+COPY . /var/www/html/
+
+EXPOSE 80
